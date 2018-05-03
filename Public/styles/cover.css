@@ -1,7 +1,5 @@
 
-            body {
-                background-color: rgba(11, 189, 181, 0.56);
-            }
+
 
             @media screen and (max-width: 20em) {
                 h1 {
@@ -11,6 +9,10 @@
                 h3 {
                     font-size: 0.8em;
                     margin-top: 1em;
+                }
+                
+                h5 {
+                    font-size: 0.5em;
                 }
 
                 .btn-lg {
@@ -23,12 +25,16 @@
 
             @media screen and (min-width: 20.1em) and (max-width: 30.0em) {
                 h1 {
-                    font-size: 2em;
+                    font-size: 3em;
                 }
 
                 h3 {
-                    font-size: 1.2em;
+                    font-size: 1em;
                     margin-top: 1em;
+                }
+                
+                h5 {
+                    font-size: 0.7em;
                 }
 
                 .btn-lg {
@@ -48,6 +54,10 @@
                     font-size: 1.8em;
                     margin-top: 1em;
                 }
+                
+                h5 {
+                    font-size: 1.2em;
+                }
 
                 .btn-lg {
                     margin-top: 1em;
@@ -62,10 +72,30 @@
                 text-align: center;
             }
 
+
+            .signupwarning {
+                height: 2em;
+                font-size: 1rem;
+                border-color: transparent;
+                color: #f6f904;
+                background: transparent;
+                margin-bottom: 10px;
+            }
+            
+            .btn-info {
+                color: #fff;
+                background-color: #01a1ed;
+                border-color: transparent;
+                margin: 10px;
+                border-color: #2e6da4;
+            }
+            
             .btn-primary {
                 color: #fff;
-                background-color:rgba(119, 67, 224, 0.88);
+                background-color: #00c853;
                 border-color: transparent;
+                margin: 10px;
+                border-color: #2e6da4;
             }
 
             #main-frame {
@@ -74,10 +104,13 @@
               left: 50%;
               top: 30%;
               -webkit-transform: translate(-50%, -30%);
+              -moz-transform: translate(-50%, -30%);
+              -o-transform: translate(-50%, -30%);
+              -ms-transform: translate(-50%, -30%);
               transform: translate(-50%, -30%);
             }
 
-        .login_modal_footer{margin-top:5px;}
+     .login_modal_footer{margin-top:5px;}
         .login_modal_header .modal-title {text-align: center;font-family:'Philosopher',sans-serif; }
         .form-group{position: relative;}
         .form-group .login-field-icon {
@@ -97,8 +130,8 @@
         .login_modal_header, .login_modal_footer {background: rgba(11, 189, 189, 0.84) !important;color:#fff;}
         .modal-register-btn{margin-top: 3em; width:100%; font-size: 0.7em;}
         .login-modal input{height:40px; box-shadow: none; border:1px solid #ddd;}
-        .modal-body-left{float:left; width:40%; padding-right:5%; border-right:4px solid #ddd;}
-        .modal-body-right{width:60%;}
+        .modal-body-left{float:left; width:40%; padding-left: 5%; padding-right:10%; border-right:4px solid #ddd;}
+        .modal-body-right{width:60%; padding-left: 5%}
 
         .modal-social-icons{padding-left:12.5%}
         .facebook, .twitter, .google, .linkedin, .github {width: 70%;height:2.2em; padding-top:2%; margin-top:2%; font-size:0.7rem;text-align: left}
@@ -110,7 +143,7 @@
         .github, .github:hover{background-color: #1b1c1d; border: 2px solid #1b1c1d; color:#fff;}
         #social-icons-container{position: relative;}
         #center-line{position: absolute;  right: 57.5%;top: 50%;background:#ddd;  border: 4px solid #DDDDDD;border-radius: 2em; font-size: 0.7rem;}
-        .modal-login-btn{width:100%;height:10%; margin-bottom:5px;}
+        .modal-login-btn{width:100%;height:20%; margin-bottom:5px; color: white;}
         #modal-launcher{margin: 30% 0 0 30%; }
         .i {
             margin-left: 5px;
@@ -118,4 +151,3 @@
             height: 30px;
             vertical-align: left;
         }
-

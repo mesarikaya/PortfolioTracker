@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, shrink-to-fit=no">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Social Life App</title>
+        <title>ITrack App</title>
         <!--LOAD bootstrap -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
         <link rel=stylesheet type=text/css href="../styles/cover.css">
@@ -13,7 +13,15 @@
         
         <style>
             body {
-                 background-color: rgba(11, 189, 181, 0.56);
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                background: #1488CC;  /* fallback for old browsers */
+                background: -webkit-linear-gradient(to top, #2B32B2, #1488CC);  /* Chrome 10-25, Safari 5.1-6 */
+                background: linear-gradient(to top, #2B32B2, #1488CC); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                color: #f7f7f9;
             }
         </style>
 
@@ -29,24 +37,84 @@
                 <div class="row-fluid">
                     <div class="row-fluid text-center">
                         <div class="header" id="welcome-message">
-                            <h1 style="color:rgb(234, 8, 163)"> <strong>Welcome!</strong></h1>
-                            <h3 style="color:rgb(255, 249, 0)"> <strong>Search and Enjoy Your Life... </strong> </h3>
+                            <h1 style="color:white"> <strong>ITRACK</strong></h1>
+                            <h3 style="color:white"> <strong>The Place to Tracks Your Investments</strong></h1>
+                            <h5 style="color:white"> Stocks, ETFs, Cryptos ... </h3>
                         </div>
                     </div>
                 </div>
 
                 <div class="row-fluid" id="login-choice">
-                    <div class="wrapper text-sm-center">
-                        <div class="btn-group" role="group" aria-label="Login group">
+                    <div class="row-fluid">
+                        <div class="wrapper text-sm-center">
+                            <!-- User registration or login section-->
+                            <form id="sign-in-form" class="form-inline" action="/auth/sign-in" method="post">
+                              <div class="form-group">
+                                <input type="email" class="form-control" id="sign-in-email" name="sign_in_email" placeholder="Email">
+                                <input type="password" class="form-control" id="sign-in-password" name="sign_in_password" placeholder="Password">
+                              </div>
+                              
+                            </form>
+                            <!---
                             <button type="button" class="btn btn-lg btn-primary" data-toggle="modal" data-target="#myLoginModal" id="LogIn" style="margin-right: 0.3em;"> Log in </button>
-                            <a href="/guest"><button type="button" class="btn btn-lg btn-primary"> Guest </button> </a>
+                            <a href="/guest"><button type="button" class="btn btn-lg btn-primary"> Guest </button> </a>-->
+                        </div>
+                    </div>
+                    <div class="row-fluid text-center">
+                        <% if (typeof signupMessage != 'undefined' && signupMessage.length > 0) { %>
+                            <div class="signupwarning text-center">
+                                <%= signupMessage[0] %>
+                            </div>
+                        <% } %>   
+                    </div>
+                    <div class="row-fluid text-center">
+                        <div class="btn-group" role="group" aria-label="Login group" style="margin-top:10px">
+                            <button type="submit" class="btn btn-info" form="sign-in-form">Sign-in</button>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myLoginModal" id="Signup">Sign-up</button>
+                        </div>
+                    </div>
+                    <div class="row-fluid text-center">
+                        <div class="form-check mb-2 mr-sm-2 mb-sm-0">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox"> <strong>Remember me</strong>
+                            </label>
+                        </div>
+                        
+                        <a href="#" class="login-link" data-toggle="modal" data-target="#myVerifyLogin" style="font-size: 0.8rem; color: white">Lost your password? Activate!</a>
+                    </div>
+                </div>
+            </div>
+            
+             <!-- Lost password modal -->
+             <div class="modal fade" id="myVerifyLogin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog" style="width: 40%">
+                    <div class="modal-content">
+                        <div class="modal-header login_modal_header" style="height: 3em; padding-top: 0.6em" >
+                            <h3 class="modal-title mx-auto my-auto" id="myModalLabel"> Send Verification </h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        </div>
+                        <div class="modal-body login-modal" style="padding-top: 0.005em">
+                            <div class="clearfix"></div>
+                            <div class="text-center" id='social-icons-container' style="margin-top: 1em">
+                                <h5 style="color: green;"> Enter your account email and last remembered password for verification! </h5>
+                                <form class="justify-content-center" action="/auth/lost-password" method="post">
+                                    <div class="form-inline justify-content-center">
+                                        <input type="email" id="email" placeholder="Email" value="" name="email" class="form-control login-field justify-content-center" style="margin: 0.4rem; font-size: 0.7rem; width: 60%">
+                                        <input type="password" id="password" placeholder="Password" value="" name="password" class="form-control login-field justify-content-center" style="margin-bottom: 0.8rem; font-size: 0.8rem; width: 60%">
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-success modal-login-btn text-center" style="width: 20%; font-size: 1rem"><strong>Send</strong></button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="modal-footer login_modal_footer">
                         </div>
                     </div>
                 </div>
             </div>
-
-             <!-- Log in modal -->
-
+            <!-- Lost password modal close -->
+            
+            <!-- Log in modal -->
             <div class="modal fade" id="myLoginModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -60,18 +128,19 @@
                             <div class="clearfix"></div>
                             <div id='social-icons-container' style="margin-top: 1em">
                                 <div class='modal-body-left'>
-                                    <div class="form-group">
-                                        <input type="text" id="username" placeholder="Username" value="" class="form-control login-field" style="font-size: 0.8rem;">
-                                        <i class="fa fa-user login-field-icon"></i>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <input type="password" id="login-pass" placeholder="Password" value="" class="form-control login-field" style="font-size: 0.8rem">
-                                        <i class="fa fa-lock login-field-icon" ></i>
-                                    </div>
-
-                                    <a href="#" class="btn btn-sm btn-success modal-login-btn">Login <span style="font-size: 0.8em">(temporarily inactive)</span></a>
-                                    <a href="#" class="login-link float-left" style="font-size: 0.8rem">Lost your password?</a>
+                                    <form action="/auth/sign-up" method="post">
+                                        <div class="form-group">
+                                            <input type="email" id="email" placeholder="Email" value="" name="email" class="form-control login-field" style="font-size: 0.8rem">
+                                            <i class="fa fa-user login-field-icon"></i>
+                                        </div>
+    
+                                        <div class="form-group">
+                                            <input type="password" id="password" placeholder="Password" value=""  name="password" class="form-control login-field" style="font-size: 0.8rem">
+                                            <i class="fa fa-lock login-field-icon" ></i>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-sm btn-success modal-login-btn"><strong>Sign Up</strong></button>
+                                    </form>
                                 </div>
 
                                 <div class='modal-body-right d-flex mx-auto'>
@@ -87,9 +156,7 @@
                             </div>
                             <div class="clearfix"></div>
 
-                            <div class="form-group modal-register-btn">
-                                <button class="btn btn-primary d-flex mx-auto disabled"> New User! Please Register (Temporarily unavailable)</button>
-                            </div>
+
                         </div>
                         <div class="clearfix"></div>
                         <div class="modal-footer login_modal_footer">
@@ -97,16 +164,11 @@
                     </div>
                 </div>
             </div>
-
         <!-- Log in modal close -->
-
         <!--For Bootstrap 4.0 -->
         <!--LOAD JQUERY -->
         <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-
-
-
     </body>
 </html>

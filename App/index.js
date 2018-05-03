@@ -1,12 +1,13 @@
 'use strict';
 
 var FormHandler = require(process.cwd() + '/Controllers/formHandler.js');
+var Autocomplete = require(process.cwd() + '/Controllers/autocomplete.js');
 
-
-module.exports = function(app, passport, asyncr) {
+module.exports = function(app, passport, asyncr, ios) {
     
     // Introduce the backend form handler javascripts
     var formHandler = new FormHandler();
+    var autocomplete = new Autocomplete();
     
     // Create authentication check via using passport.js    
     function ensureAuthenticated(req, res, next) {
@@ -21,6 +22,57 @@ module.exports = function(app, passport, asyncr) {
       }
     }
     
+
+    
+    ios.on('connection', function(soc){
+        //console.log(socket.request.session);
+        //var userId = socket.request.session.passport.user;
+        
+        //require(process.cwd() + '/Controllers/formHandler.js')(ios, socket);
+        //socket.handshake.session.save();
+        //when a user logs in it creates its own room
+        soc.on('join', function(data) {
+          soc.join(data.ch);
+          var userId = soc.request.session.passport.user;
+        });
+        
+        //disconnect link
+        soc.on('disconnect', function(){
+          //console.log('a user connected', userId);
+          console.log('user disconnected');
+        });
+        
+        //Delete the stock from the user's portfolio list
+        soc.on("remove_stock",function(data){
+            var ticker = data.ticker;
+            var roomId = data.room;
+
+            //Check if the ticker is undefined or null
+            if (ticker !== undefined && ticker !== null && soc.request.session.passport!== undefined){
+                var userId = soc.request.session.passport.user;
+                formHandler.deleteTicker(userId, ticker, ios, soc, roomId); 
+            }
+            else{
+                console.log("Error: Undefined or null ticker");
+            }
+        });
+        
+        //Add the stock ticker to the relevant user room
+        soc.on("add_stock",function(data){
+            var ticker = data.ticker;
+            var roomId = data.room;
+            
+            //Check if the ticker is undefined or null
+            if (ticker !== undefined && ticker !== null && soc.request.session.passport!== undefined){
+                var userId = soc.request.session.passport.user;
+                formHandler.addTicker(userId, ticker, ios, soc, roomId);
+            }
+            else{
+                console.error("Undefined or null ticker");
+            }
+        });
+    });
+    
     // Create safety for attempts to reach the /user interface without authentication
     app.get('/flash', function(req, res){
         // Set a flash message by passing the key, followed by the value, to req.flash().
@@ -28,8 +80,37 @@ module.exports = function(app, passport, asyncr) {
         res.redirect('/');
     });
     
-    //CREATE AUTHENTICATIONS FOR Google, Facebook, LinkedIn, Twitter and Github
-    // Google Authenticate
+    
+    // CREATE AUTHENTICATIONS FOR Google, Facebook, LinkedIn, Twitter and Github
+    // Sel created authenticate
+    // After sign up request, direct to home page for login
+    app.route('/auth/sign-up')
+        .post(passport.authenticate('auth/sign-up', {successRedirect: '/',
+                                                     failureRedirect: '/',
+                                                     failureFlash: true })
+        );
+        
+     // After lost-password request, direct to home page for login
+    app.route('/auth/lost-password')
+        .post(passport.authenticate('auth/lost-password', {successRedirect: '/',
+                                                     failureRedirect: '/',
+                                                     failureFlash: true })
+        );
+        
+    // Verify the user and redirect to startpage in case of success. In case of error send error.
+    app.get('/verify/:email/:token', function (req, res) {
+            formHandler.verifyEmail(req,res);
+    });
+    
+    // User sign-in
+    app.post('/auth/sign-in',
+        passport.authenticate('auth/sign-in', {failureRedirect: '/', failureFlash: true }),
+        function(req,res){
+            console.log("Redirecting to the user account:", '/user/'+req.user.local_login.email);
+            res.redirect('/user/'+req.user.local_login.email);
+        });
+    
+    // GOOGLE AUTHENTICATE
     app.route('/auth/google')
         .get(passport.authenticate('google',
             {scope: [
@@ -38,27 +119,27 @@ module.exports = function(app, passport, asyncr) {
             ]}
          ));
     
-    //Google callback call
+    // Google callback call
     app.get('/auth/google/callback',
       passport.authenticate('google', { failureRedirect: '/' }),
       function(req, res) {
-            res.redirect('/user');
-    });
+            res.redirect('/user/'+req.user.social_login.oauthID);
+      });
           
-    //Facebook Authenticate   
+    // FACEBOOK AUTHENTICATE   
     app.route('/auth/facebook')
             .get(passport.authenticate('facebook',
                 {}
             ));
     
-    //Facebook callback call
+    // Facebook callback call
     app.get('/auth/facebook/callback',
       passport.authenticate('facebook', { failureRedirect: '/' }),
       function(req, res) {
-            setTimeout(res.redirect('/user'), 10);
+            res.redirect('/user/'+req.user.social_login.oauthID);
     });
     
-    //Twitter Authenticate   
+    //TWITTER AUTHENTICATE   
     app.route('/auth/twitter')
             .get(passport.authenticate('twitter',
                 {}
@@ -68,10 +149,10 @@ module.exports = function(app, passport, asyncr) {
     app.get('/auth/twitter/callback',
       passport.authenticate('twitter', { failureRedirect: '/' }),
       function(req, res) {
-            setTimeout(res.redirect('/user'), 10);
+            res.redirect('/user/'+req.user.social_login.oauthID);
     });
     
-    //Linkedin Authenticate   
+    //LINKEDIN AUTHENTICATE  
     app.route('/auth/linkedin')
             .get(passport.authenticate('linkedin',
                 {}
@@ -81,10 +162,10 @@ module.exports = function(app, passport, asyncr) {
     app.get('/auth/linkedin/callback',
       passport.authenticate('linkedin', { failureRedirect: '/' }),
       function(req, res) {
-            setTimeout(res.redirect('/user'), 10);
+        res.redirect('/user/'+ req.user.social_login.oauthID);
     });
     
-    //Github Authenticate   
+    //GITHUB AUTHENTICATE   
     app.route('/auth/github')
             .get(passport.authenticate('github',
                 {}
@@ -94,73 +175,40 @@ module.exports = function(app, passport, asyncr) {
     app.get('/auth/github/callback',
       passport.authenticate('github', { failureRedirect: '/' }),
       function(req, res) {
-            setTimeout(res.redirect('/user'), 10);
+        res.redirect('/user/'+ req.user.social_login.oauthID);
     });
     
-    //After logout go back to opening page
+    //LOGOUT - After logout go back to opening page
     app.route('/logout')
 		.get(function (req, res) {
 			req.logout();
-            setTimeout(res.redirect('/guest'), 10);
+            res.redirect('/');
 		});
     
     //Direct to home page
     app.route('/')
-            .get(function(req,res){
-                res.render(process.cwd()+'/Public/views/cover.ejs', {messages: req.flash('info') });
-            });
-    
-    // Control the user data for searched locations and likes
-    app.route('/user/show')
-            .post(ensureAuthenticated, function(req,res){
-                
-                // Check if post is called via Like button or page refresh
-                if (typeof(req.body.loc_data) !== 'undefined'){//save the location likes/dislikes
-                    formHandler.update_likes(req, res);
-                } 
-                if (typeof(req.body.data) !== 'undefined'){//page refresh
-                    if(typeof(req.user) === "undefined"){
-                        console.log("User is not recognized!. No past record search is made.");
-                    }
-                    else{//Save the new location search
-                       formHandler.record_search(req,res); 
-                    }
-                }
-                
-                // Redirect to "/user" router
-                setTimeout(res.redirect('/user'), 10);
-            });
-            
-    // Route for "/user"        
-    app.route('/user')
+        .get(function(req,res){
+           res.render(process.cwd()+'/Public/views/cover.ejs', {messages: req.flash('info'), signupMessage: req.flash('signupMessage') });
+        });
+        
+    //Direct to user page
+    app.route('/user/:username')
          .get(ensureAuthenticated,function(req,res){
-                if(typeof(req.user) === "undefined"){
-                    //console.log("User is not recognized!. No page update request is made.");
-                    return res.redirect('/flash');
-                }
-                else{
-                    //User is logged in and recognized, then update the page with the latest search results
-                    formHandler.update_page(req, res, asyncr);
-                }
+            res.sendFile(process.cwd() + '/Public/views/user.html'); 
          });
-    
-    // Direct the "/guest" request to relevant html
-    app.route('/guest')
-            .post(function(req,res){
-                res.sendFile(process.cwd() + '/Public/views/guest.html');
-            })
-            .get(function(req,res){
-                res.sendFile(process.cwd() + '/Public/views/guest.html');
-            });
-    
-    
-     app.route('/guest/search')
-            .post(function(req,res){
-                res.sendFile(process.cwd() + '/Public/views/guest.html');
-            })
-            .get(function(req,res){
-
-                res.sendFile(process.cwd() + '/Public/views/guest.html');
-            });
+         
+    // Create the autosuggestion list
+    app.route('/user/:username/autocomplete')
+        .post(ensureAuthenticated, function(req,res){
+            // send autocomplete suggestion
+            autocomplete.search(req, res);
+        });
+        
+    // Add the ticker if it does not exist in the user' stock ticker list
+    app.route('/user/:username/portfolio_list')
+        .get(ensureAuthenticated, function(req,res){
+            //Add the ticker to the database
+            formHandler.get_portfolio(req, res);
+        });
 
 };

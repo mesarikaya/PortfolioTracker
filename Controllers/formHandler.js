@@ -1,170 +1,133 @@
 'use strict';
 
-var Users = require('../Model/user.js');
+var User = require('../Model/user.js');
 
-function track_attendance(db) {
+function handleForms(db) {
     
-    //Function to update the visited location like and dislikes
-    this.update_likes = function(req,res){
-             
+    this.verifyEmail = function(req,res){
+        var email = req.params.email;
+        var token = req.params.token;
+        User.findOne({'local_login.email': email}, function (err, user) {
+            if (err) {
+               return res.send("Error in user email verification:", err);
+            }
+            
+            // Get the expiry time of the token
+            var d = new Date();
+            var current_time = d.getTime();
+            var expiry_timestamp = new Date(user.local_login.verify_token_expires).getTime();
+            
+            if (user.local_login.verify_token == token & expiry_timestamp>=current_time ) {
 
-         Users
-            .findOne({'login_details.oauthID': req.user.login_details.oauthID}).sort({'login_details.created': -1})
-            .exec(function (err, result) {
-                    if (err) { throw err; }
-                    
-
-                   // ADD to LIKES
-                    if (req.body.action === "insert"){
-                           result.place_data.liked_places.push(req.body.loc_data);
-                           //console.log("inserted", req.user);
-                           result.markModified('place_data.liked_places');
-                           result.save(function (err, doc) {
-                               if (err) { throw err; }
-                                   //console.log("Update is successful. Saved document: ", doc);
-                               });
-                       }
-                    else{
-                       //DELETE from LIKES
-                       if (req.body.action === "delete"){
-                           //console.log("BEFORE deleted", result);
-                           var index = result.place_data.liked_places.indexOf(req.body.loc_data);
-                           if (index !== -1){
-                                result.place_data.liked_places.splice(index, 1)[0];
-                                result.markModified('place_data.liked_places');
-                           }
-
-                           //console.log("deleted", req.user);
-                           
-                           result.save(function (err, doc) {
-                               if (err) { throw err; }
-                               //console.log("Update is successful. Saved document: ", doc);
-                           });
-                       }
-                       else{
-                           //console.log("Item could not be deleted!");
-                       }
+                User.findOneAndUpdate({'local_login.email': email}, {'local_login.isVerified': true}, function (err, resp) {
+                    if (err) {
+                        //console.log("Error in user email verification:", err);
+                        return res.send("Error in user email verification. Error details:", err);
                     }
-                    
-
+                    else {
+                        //console.log('The user has been verified! Redirecting to start page.',user);
+                        return res.redirect('/');
+                    }
                 });
-             
-             
+            } 
+            else {
+                //console.log('The token is wrong or outdated! Reject the user.');
+                return res.send('The token is wrong or outdated!  Your request is rejected.');
+            }
+        }); 
     };
     
-    // Function to record the location searches of the user
-    this.record_search = function(req,res){
-         var data = req.body.data;
-         
-         if(typeof(req.user) === "undefined"){
-             console.log("User is not recognized!");
-         }
-         else{
-            // Authenticated user exists, save the serach if it is found in the database
-            Users
-                .findOne({'login_details.oauthID': req.user.login_details.oauthID}).sort({'login_details.created': -1})
-                .exec(function (err, result) {
-                        if (err) { throw err; }
-                        if (result) {
-                            result.past_searches.results.push(data);
-                            //console.log("inserting. result", result);
-                            result.markModified('past_searches.results');
-                            result.save(function (err, doc) {
-                                if (err) { throw err; }
-                                //console.log("Insert is successful. Saved document: ", doc);
-                            });
-        
-                        }
-                        else{
-                            return res.send({"Error": "No records could be found."});
-                        }
-                    }
-                );
-         }
-
-             
+    // Add the ticker to the database
+    this.get_portfolio = function(req,res){
+        User.findOne({$or:[{'local_login.email': req.params.username},
+                           {'social_login.oauthID': req.params.username}]}, function (err, user) {
+            if (err) {
+               return res.send("Error with user account database:", err);
+            }
+            
+            if (user) {
+                //console.log("stock exists. Do not add");
+                return res.json(user.stock_list);    
+            }
+            else{
+                //Save the ticker to the list of the users followed tickers
+                return res.json(user.stock_list);
+            }
+        });
+     };
+    
+    // Add the ticker to the database
+    this.addTicker = function(userId, symbol, ios, socket, roomId){
+        var ticker_name = symbol;
+        var stock_exists = "Yes";
+        User.findOne({'_id': userId}, function (err, user) {
+            if (err) {
+               console.error("Error with user account database:", err);
+            }
+            
+            if (user.stock_list.includes(ticker_name)) {
+                if (user !== undefined){
+                    //console.log("stock exists. Do not add");
+                    stock_exists = "Yes";
+                    //console.log("Stock exists, calling the emit");
+                    ios.to(roomId).emit('stock_exists', {stock_exists: ""+stock_exists, ticker: ""+ticker_name, room: ""+ roomId  });
+                    //return res.json(stock_exists);    
+                }
+                else{
+                    console.error("No such user document exists:", user);
+                }
+            }
+            else{
+                //Save the ticker to the list of the users followed tickers
+                stock_exists = "No";
+                user.stock_list.push(ticker_name);
+                user.markModified('stock_list');
+                user.save(function (err, doc) {
+                    if (err) { console.error("Error:", err); }
+                    //console.log("Update is successful. Saved document: ", doc);
+                });
+                ios.to(roomId).emit('stock_exists', {stock_exists: ""+stock_exists, ticker: ""+ticker_name, room: ""+ roomId });
+            }
+        });
      };
      
-     
-    
-    
-    // Update the logged in user page
-    this.update_page = function (req, res, asyncr){
-         
-        //Asyncr.js is used due to using multiple Asyncronous calls that depend on each other
-        function call1(req, res){
-            //Get the last doc of the user
-            Users
-              .find({'login_details.oauthID': req.user.login_details.oauthID}).sort({'login_details.created': -1})
-              .exec(function (err, doc) {
-                        if (err) { throw err; }
-        
-                        if (doc ) {
-                             //console.log("Last search of user is sent: ", doc, doc[doc.length-1].login_details.name, doc[doc.length-1].past_searches.results[0]);
-                             //Send out to the front-end and render the page
-                             
-                             //console.log("Documents are shared:");
-                             return doc;
-                        }
-                        else{
-                            //console.log("No data to be sent");
-                            return [];
-                        }
-              }).then(doc => {
-                       // For all the locations that user search involves, calculate the like counts via checking all user's likes
-                       var counts = [];
-                       var data = [doc, doc[0].past_searches.results[doc[0].past_searches.results.length-1]];
-                       asyncr.mapSeries(data[1],function(item, callback) {
-                           //console.log("Item is:", item);
-                           Users
-                               .find({"place_data.liked_places": { $in: ["location-" + item.unique_key] } })
-                               .exec(function (err, documents) {
-                                   if (err) { throw err; }
-                                   counts.push(documents.length);
-                                   //share the counts array for the LIKES
-                                   callback(null, counts[counts.length-1]);
+     // Delete the ticker from the database
+     this.deleteTicker = function(userId,symbol, ios, socket, roomId){
+        var ticker_name = symbol;
+       
+        User.findOne({'_id': userId}, function (err, user) {
+            if (err) {
+               console.error("Error with database connection during stock ticker actions");
+            }
 
-                                   
-                               });
-                        
-                       },function(err, results) {
-                                   if (err) throw err;
-                                   //CALL the last async function to update the page with the user data that inclues the location related data and the relevant likes
-                                   call2(req, res, results);
-                        });
-               }).catch(error => {
-                           // Handle errors of asyncFunc1() and asyncFunc2()
-                           console.log('An error occurred', error);
-                 });
-        }
-        
-        //Function to update the page with the user data that inclues the location related data and the relevant likes
-        function call2(req, res, like_counts){
-              Users
-              .find({'login_details.oauthID': req.user.login_details.oauthID}).sort({'login_details.created': -1})
-              .exec(function (err, doc) {
-                    if (err) { throw err; }
-                    if (doc !== []) {
-                          return res.render(process.cwd()+'/Public/views/user.ejs', {user : {
-                                                                                              name: req.user.login_details.name, 
-                                                                                              data: doc[0].past_searches.results[doc[0].past_searches.results.length-1],
-                                                                                              likes: like_counts,
-                                                                                              liked_places: doc[0].place_data.liked_places
-                                                                                            }
-                                                                                      
-                                                                                     });
-                      }
-                      else{
-                            //console.log("No data to be sent");
-                            return res.render(process.cwd()+'/Public/views/user.ejs',  {user : {name:req.user.login_details.name, data: ""}});
-                     }
-              });
-        }
+            if (user.stock_list.includes(ticker_name)) {
+                if(user !== undefined){
+                    //Delete the stock since it exists in the stock list
+                    for (let i=0; i<user.stock_list.length; i++){
+                        if (user.stock_list[i] === ticker_name) {
+                           user.stock_list.splice(i, 1);
+                           break;//there will be only one from each record
+                        }
+                    }
 
-        //Call the "call 1" function to start serialized the asyncronous calls
-        call1(req, res);
-    };
+                    user.markModified('stock_list');
+                    user.save(function (err, doc) {
+                        if (err) { console.error("Error:", err); }
+                    });
+                    ios.sockets.to(roomId).emit('delete_stock_confirmed', {ticker: ""+ticker_name, room: ""+ roomId });
+                }
+                else{
+                    console.error("No such document exists:", user);
+                }
+               
+            }
+            else{
+                //No such ticker exists
+                console.error("No such ticker exists", user, "User data is:", userId);
+                //return res.json("donotdelete");
+            }
+        });
+     };
 }
-    
 
-module.exports = track_attendance;
+module.exports = handleForms;
