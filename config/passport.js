@@ -34,13 +34,8 @@ module.exports = function (passport) {
     function sendEmail(req, email, verification_token, permalink, expiry_timestamp){
         // Use nodemailer.js
         console.log("Email", email+"", "Password:", process.env.password+"");
-        var transporter = nodemailer.createTransport({
-             host: 'smtp-mail.outlook.com',
-             port: 587,
-             secure:false,
-             tls: {
-                ciphers:'SSLv3'
-             },
+        var transporter = nodemailer.createTransport("SMTP", {
+             service: "hotmail",
              auth: {
                user: 'no_reply_portfolio_tracker@hotmail.com',
                pass: process.env.password +""
