@@ -201,6 +201,7 @@ module.exports = function(app, passport, asyncr, ios) {
     app.route('/user/:username/autocomplete')
         .post(ensureAuthenticated, function(req,res){
             // send autocomplete suggestion
+	    console.log("Requesting autocomplete");
             autocomplete.search(req, res);
         });
         
