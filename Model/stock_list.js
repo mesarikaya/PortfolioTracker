@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 //Connect to the database
 var Schema = mongoose.Schema;
 
-var Stocks = new Schema({
+var Stock = new Schema({
    Ticker: String,
    Name: String,
    Exchange: String,
@@ -16,6 +16,6 @@ var Stocks = new Schema({
    Country: String,
    Weight: String,
    Type: String
-}, {collection:'stocks'});
+}, {collection:'stock'});
 
-module.exports = mongoose.model('Stocks', Stocks);
+module.exports = mongoose.model('Stock', Stock);
