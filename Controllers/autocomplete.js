@@ -1,7 +1,7 @@
 'use strict';
 
 var Stocks = require('../Model/stock_list.js');
-
+console.log("Inside the autocomplete");        
 console.log("Stock list:", Stocks);
 function autocomplete(db) {
 
