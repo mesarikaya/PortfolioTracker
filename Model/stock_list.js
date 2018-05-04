@@ -16,6 +16,6 @@ var Stock = new Schema({
    Country: String,
    Weight: String,
    Type: String
-}, {collection:'stock'});
+}, {collection:'stocks'});
 
 module.exports = mongoose.model('Stock', Stock);
