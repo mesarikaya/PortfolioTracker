@@ -37,14 +37,14 @@ module.exports = function (passport) {
         var transporter = nodemailer.createTransport("SMTP", {
              service: "Hotmail",
              auth: {
-               user: 'noreplyinvestment_tracker@yahoo.com',
+               user: 'no_reply_portfolio_tracker@hotmail.com',
                pass: process.env.password +""
              }
         });
         
         // Set the mail options                   
         var mailOptions = {
-             from: 'noreplyinvestment_tracker@hotmail.com',
+             from: 'no_reply_portfolio_tracker@hotmail.com',
              to: email + "",
              subject: 'Account Verification Token', 
              text: 'Dear user of ' + email + ',\n\n' + 'We are delighted to see you joining our growing customer base.\n\n' + 
