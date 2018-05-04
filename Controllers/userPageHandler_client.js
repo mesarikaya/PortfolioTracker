@@ -446,9 +446,9 @@
                               // Create a new <option> element.
                               var option = document.createElement('option');
                               // Set the value using the item in the JSON array.
-                              console.log("Item for autocomplete is:", item);
-                              var option_value= '<strong style="font-color: blue">'+item.Stocks.Ticker+"</strong>"+ " " + 
-                                                 item.Stocks.Name + "-" + item.Stocks.Exchange + "-" + item.Stocks.Country;
+                              
+                              var option_value= '<strong style="font-color: blue">'+item.Ticker+"</strong>"+ " " + 
+                                                 item.Name + "-" + item.Exchange + "-" + item.Country;
                               option.innerHTML = option_value;
                               option.style.fontSize = "6px";
                          
