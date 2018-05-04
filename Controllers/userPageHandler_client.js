@@ -406,7 +406,7 @@
            hoverdistance:	20,
            spikedistance:	20,
            dragmode	:	"zoom",
-           legend:{orientation: "h", x: 0.3, xanchor: "left", y: -0.7, yanchor: "bottom", traceorder: "normal", font:{size:18}},
+           legend:{orientation: "h", x: 0.4, xanchor: "left", y: -0.7, yanchor: "bottom", traceorder: "normal", font:{size:18}},
            showlegend: true
         };
         Loading_indication.innerHTML = "";
