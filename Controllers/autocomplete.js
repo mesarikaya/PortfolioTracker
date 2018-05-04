@@ -11,7 +11,7 @@ function autocomplete(db) {
         .exec(function (err, doc) { 
             if (err) { console.log("Stock list database search resulted with error:", err);}
             if (doc){
-                console.log("Stock list:", doc);
+                console.log("Stock list:", doc, doc.Stocks.Ticker);
                 res.json(doc);
             }
         });
