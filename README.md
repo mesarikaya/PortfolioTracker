@@ -1,5 +1,5 @@
 # PortfolioTracker
-A FullStack development webpage for real-time portfolio tracking. 
+A Fullstack development webpage for real-time portfolio tracking. 
 
 # Website: 
 https://track-portfolio.herokuapp.com
