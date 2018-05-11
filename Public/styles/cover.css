@@ -1,16 +1,3 @@
-            body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                background-color: #1488CC;  /* fallback for old browsers */
-                background: -webkit-linear-gradient(to top, #2B32B2, #1488CC);  /* Chrome 10-25, Safari 5.1-6 */
-                background: linear-gradient(to top, #2B32B2, #1488CC); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-                background-repeat: no-repeat;
-                background-attachment: fixed;
-                color: #f7f7f9;
-            }
-
-
             @media screen and (max-width: 20em) {
                 h1 {
                     font-size: 1.6em;
