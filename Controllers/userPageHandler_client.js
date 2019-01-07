@@ -200,10 +200,10 @@
                     }
                 }
                 else {
-                    //console.log('something else other than 200 was returned', xmlhttp.status);
+                    console.log('something else other than 200 was returned', xmlhttp.status);
                 }
           };
-    
+          console.log("REquested attempt to the following address:", alphavantage_url + stock_name + "&outputsize=full&apikey=" + alphavantage_apikey);
           xmlhttp.open('GET', alphavantage_url + stock_name + "&outputsize=full&apikey=" + alphavantage_apikey, true);
           xmlhttp.setRequestHeader("Content-type", "application/json");
           xmlhttp.send();
