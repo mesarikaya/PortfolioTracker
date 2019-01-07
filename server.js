@@ -65,7 +65,7 @@ app.use(passport.session());
 
 
 //initialize a simple http server
-let port = process.env.PORT || 8000;
+let port = process.env.PORT || 3000;
 const server = http.createServer(app);
 
 server.listen(port, function() {
