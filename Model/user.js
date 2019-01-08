@@ -27,6 +27,8 @@ var User = new Schema({
    },
    stock_list: Array,
    crypto_list: Array
-});
+}, {
+        usePushEach: true
+    });
 
 module.exports = mongoose.model('User', User);

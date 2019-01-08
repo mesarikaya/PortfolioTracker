@@ -16,6 +16,9 @@ var Stock = new Schema({
    Country: String,
    Weight: String,
    Type: String
-}, {collection:'stocks'});
+}, {
+        usePushEach: true
+    },
+    { collection: 'stocks' });
 
 module.exports = mongoose.model('Stock', Stock);

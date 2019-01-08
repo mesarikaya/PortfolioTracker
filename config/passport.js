@@ -12,7 +12,7 @@ var configAuth = require('./oauth');
 var randomstring = require('randomstring');
 var nodemailer = require('nodemailer');
 //var smtpTransport = require("nodemailer-smtp-transport");
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 
 
 module.exports = function (passport) {
