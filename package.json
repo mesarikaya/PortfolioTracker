@@ -28,7 +28,7 @@
   "homepage": "https://github.com/mesarikaya/voting-app",
   "dependencies": {
     "8.9.4": "^1.0.5",
-    "async": "^2.6.0",
+    "async": "^2.6.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "connect-flash": "^0.1.1",
